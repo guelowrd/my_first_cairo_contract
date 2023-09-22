@@ -1,5 +1,13 @@
 #[starknet::contract]
-mod my_first_cairo_contract {
+mod ownable {
+    use starknet::ContractAddress;
     #[storage]
-    struct Storage {}
+    struct Storage {
+        owner: ContractAddress
+    }
+
+    #[constructor]
+    fn constructor(ref self: ContractState, initial_owner: ContractAddress) {
+        self.owner.write(initial_owner);
+    }
 }
