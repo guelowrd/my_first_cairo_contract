@@ -11,6 +11,20 @@ mod Ownable {
     use super::ContractAddress;
     use starknet::get_caller_address;
 
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        OwnershipTransferred: OwnershipTransferred,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct OwnershipTransferred {
+        #[key]
+        prev_owner: ContractAddress,
+        #[key]
+        new_owner: ContractAddress,
+    }
+
     #[storage]
     struct Storage {
         owner: ContractAddress
@@ -25,7 +39,14 @@ mod Ownable {
     impl OwnableImpl of super::OwnableTrait<ContractState> {
         fn transfer_ownership(ref self: ContractState, new_owner: ContractAddress) {
             self.only_owner();
+            let prev_owner = self.owner.read();
             self.owner.write(new_owner);
+            self
+                .emit(
+                    Event::OwnershipTransferred(
+                        OwnershipTransferred { prev_owner: prev_owner, new_owner: new_owner, }
+                    )
+                );
         }
 
         fn get_owner(self: @ContractState) -> ContractAddress {
