@@ -27,6 +27,7 @@ mod ownable {
         }
 
         fn set_data(ref self: ContractState, new_value: felt252) {
+            self.only_owner();
             self.data.write(new_value);
         }
     }
@@ -34,8 +35,7 @@ mod ownable {
     #[generate_trait]
     impl PrivateMethods of PrivateMethodsTrait {
         fn only_owner(self: @ContractState) {
-            let caller = get_caller_address();
-            assert(caller == self.owner.read(), 'Caller is not the owner.');
+            assert(get_caller_address() == self.owner.read(), 'Caller is not the owner.');
         }
     }
 }
