@@ -6,7 +6,7 @@ trait IData<T> {
 
 #[starknet::contract]
 mod ownable {
-    use starknet::ContractAddress;
+    use starknet::{ContractAddress, get_caller_address};
     use super::IData;
 
     #[storage]
@@ -28,6 +28,14 @@ mod ownable {
 
         fn set_data(ref self: ContractState, new_value: felt252) {
             self.data.write(new_value);
+        }
+    }
+
+    #[generate_trait]
+    impl PrivateMethods of PrivateMethodsTrait {
+        fn only_owner(self: @ContractState) {
+            let caller = get_caller_address();
+            assert(caller == self.owner.read(), 'Caller is not the owner.');
         }
     }
 }
